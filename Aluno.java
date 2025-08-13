@@ -2,10 +2,9 @@ public class Aluno extends Pessoa {
     private String matricula;
     private PlanoDeTreino planoDeTreino;
 
-    public Aluno(String nome, String cpf, String dataNascimento, String matricula, PlanoDeTreino planoDeTreino) {
+    public Aluno(String nome, String cpf, String dataNascimento, String matricula) {
         super(nome, cpf, dataNascimento);
         this.matricula = matricula;
-        this.planoDeTreino = planoDeTreino;
     }
 
     // Getters e setters

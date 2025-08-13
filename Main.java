@@ -24,7 +24,7 @@ public class Main {
                     cadastrarInstrutor(scanner, academia);
                     break;
                 case 3:
-                    cadastrarPlanoDeTreino(scanner, academia);
+                    criarEAtrubuirPlanoDeTreino(scanner, academia);
                     break;
                 case 4:
                     // Chamada corrigida para o método de registro de frequência
@@ -52,7 +52,7 @@ public class Main {
         System.out.println("\n--- Sistema de Gerenciamento de Academia ---");
         System.out.println("1. Cadastrar Aluno");
         System.out.println("2. Cadastrar Instrutor");
-        System.out.println("3. Cadastrar Plano de Treino");
+        System.out.println("3. Criar e Atribuir Plano de Treino");
         System.out.println("4. Registrar Frequência (Entrada)");
         System.out.println("5. Registrar Pagamento");
         System.out.println("6. Gerar Relatórios");
@@ -72,9 +72,9 @@ public class Main {
         String matricula = scanner.nextLine();
 
         // Em um sistema real, você listaria os planos disponíveis
-        PlanoDeTreino planoPadrao = new PlanoDeTreino("Plano Padrão", new Instrutor("Instrutor Padrão", "0", "0", "Nenhum"));
+        
 
-        Aluno novoAluno = new Aluno(nome, cpf, dataNascimento, matricula, planoPadrao);
+        Aluno novoAluno = new Aluno(nome, cpf, dataNascimento, matricula);
         academia.cadastrarAluno(novoAluno);
         System.out.println("Aluno " + nome + " cadastrado com sucesso!");
     }
@@ -95,16 +95,83 @@ public class Main {
         System.out.println("Instrutor " + nome + " cadastrado com sucesso!");
     }
 
-    private static void cadastrarPlanoDeTreino(Scanner scanner, Academia academia) {
-        System.out.println("\n--- Cadastro de Plano de Treino ---");
-        System.out.print("Nome do Plano: ");
+    private static void criarEAtrubuirPlanoDeTreino(Scanner scanner, Academia academia) {
+        System.out.println("\n--- Criação e Atribuição de Plano de Treino ---");
+
+        // 1. Selecionar o Aluno para o qual o treino será criado
+        if (academia.getAlunos().isEmpty()) {
+            System.out.println("Nenhum aluno cadastrado. Por favor, cadastre um aluno primeiro.");
+            return;
+        }
+        System.out.println("Alunos disponíveis:");
+        for (int i = 0; i < academia.getAlunos().size(); i++) {
+            System.out.println((i + 1) + ". " + academia.getAlunos().get(i).getNome() + " (Matrícula: " + academia.getAlunos().get(i).getMatricula() + ")");
+        }
+        System.out.print("Escolha o número do aluno para o qual o plano será criado: ");
+        int indiceAluno = scanner.nextInt();
+        scanner.nextLine();
+
+        Aluno alunoSelecionado;
+        try {
+            alunoSelecionado = academia.getAlunos().get(indiceAluno - 1);
+        } catch (IndexOutOfBoundsException e) {
+            System.out.println("Opção de aluno inválida. Retornando ao menu principal.");
+            return;
+        }
+
+        // 2. Selecionar o Instrutor responsável pela criação
+        if (academia.getInstrutores().isEmpty()) {
+            System.out.println("Nenhum instrutor cadastrado. Por favor, cadastre um instrutor primeiro.");
+            return;
+        }
+        System.out.println("\nInstrutores disponíveis:");
+        for (int i = 0; i < academia.getInstrutores().size(); i++) {
+            Instrutor instrutor = academia.getInstrutores().get(i);
+            System.out.println((i + 1) + ". " + instrutor.getNome() + " (" + instrutor.getEspecialidade() + ")");
+        }
+        System.out.print("Escolha o número do instrutor responsável: ");
+        int indiceInstrutor = scanner.nextInt();
+        scanner.nextLine();
+
+        Instrutor instrutorResponsavel = null;
+        try {
+            instrutorResponsavel = academia.getInstrutores().get(indiceInstrutor - 1);
+        } catch (IndexOutOfBoundsException e) {
+            System.out.println("Opção de instrutor inválida. Retornando ao menu principal.");
+            return;
+        }
+        
+        // 3. Criar o Plano de Treino
+        System.out.println("\n--- Criando o Plano de Treino ---");
+        System.out.print("Digite o nome do plano de treino (ex: Treino ABC): ");
         String nomePlano = scanner.nextLine();
+        
+        PlanoDeTreino novoPlano = new PlanoDeTreino(nomePlano, instrutorResponsavel);
 
-        Instrutor instrutorPadrao = new Instrutor("Sem Nome", "0", "0", "Sem Especialidade");
+        // 4. Adicionar os Exercícios
+        System.out.println("\n--- Adicionando Exercícios ---");
+        String continuar = "s";
+        while (continuar.equalsIgnoreCase("s")) {
+            System.out.print("Digite o nome do exercício (ex: Agachamento): ");
+            String nomeExercicio = scanner.nextLine();
+            System.out.print("Digite os detalhes do exercício (ex: 3 séries de 10 repetições): ");
+            String detalhes = scanner.nextLine();
+            
+            String exercicioCompleto = nomeExercicio + " - " + detalhes;
+            novoPlano.adicionarExercicio(exercicioCompleto);
 
-        PlanoDeTreino novoPlano = new PlanoDeTreino(nomePlano, instrutorPadrao);
-        academia.cadastrarPlanoDeTreino(novoPlano);
-        System.out.println("Plano de Treino '" + nomePlano + "' cadastrado com sucesso!");
+            System.out.print("Deseja adicionar outro exercício? (s/n): ");
+            continuar = scanner.nextLine();
+        }
+
+        // 5. Atribuir o Plano ao Aluno
+        alunoSelecionado.setPlanoDeTreino(novoPlano);
+        System.out.println("\nPlano de Treino '" + novoPlano.getNome() + "' criado e atribuído com sucesso ao aluno " + alunoSelecionado.getNome() + ".");
+        
+        // A função de cadastro de plano na academia não é mais necessária, mas se você
+        // quiser manter o registro de todos os planos criados, você pode descomentar
+        // a linha abaixo. Caso contrário, o plano existirá apenas no objeto Aluno.
+        // academia.cadastrarPlanoDeTreino(novoPlano); 
     }
 
     // Método corrigido para registrar a frequência
@@ -144,6 +211,7 @@ public class Main {
         System.out.println("1. Listar Alunos");
         System.out.println("2. Listar Instrutores");
         System.out.println("3. Frequência do Dia");
+        System.out.println("4. Ficha de Treino de um Aluno"); // << NOVA OPÇÃO
         System.out.print("Escolha o relatório: ");
         int opcaoRelatorio = scanner.nextInt();
         scanner.nextLine();
@@ -156,11 +224,22 @@ public class Main {
                 relatorios.gerarRelatorioInstrutores(academia.getInstrutores());
                 break;
             case 3:
-                // Passando a instância de Academia para que o relatório possa buscar os nomes
                 relatorios.gerarRelatorioFrequencia(frequencia, academia);
+                break;
+            case 4:
+                // Implementa a nova funcionalidade aqui
+                System.out.print("Digite a matrícula do aluno para ver a ficha de treino: ");
+                String matricula = scanner.nextLine();
+                Aluno aluno = academia.buscarAlunoPorMatricula(matricula);
+                
+                if (aluno != null) {
+                    relatorios.exibirFichaDeTreino(aluno);
+                } else {
+                    System.out.println("Erro: Aluno com matrícula " + matricula + " não encontrado.");
+                }
                 break;
             default:
                 System.out.println("Opção de relatório inválida.");
+            }
         }
-    }
 }

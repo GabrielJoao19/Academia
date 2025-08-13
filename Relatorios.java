@@ -44,4 +44,29 @@ public class Relatorios {
         }
         System.out.println("---");
     }
+
+    public void exibirFichaDeTreino(Aluno aluno) {
+        System.out.println("\n--- Ficha de Treino do Aluno ---");
+        System.out.println("Aluno: " + aluno.getNome() + " (Matrícula: " + aluno.getMatricula() + ")");
+        
+        if (aluno.getPlanoDeTreino() == null) {
+            System.out.println("Este aluno ainda não possui um plano de treino atribuído.");
+            return;
+        }
+
+        PlanoDeTreino plano = aluno.getPlanoDeTreino();
+        System.out.println("Plano: " + plano.getNome());
+        System.out.println("Instrutor Responsável: " + plano.getInstrutorResponsavel().getNome());
+        System.out.println("--- Exercícios ---");
+        
+        List<String> exercicios = plano.getExercicios();
+        if (exercicios.isEmpty()) {
+            System.out.println("Nenhum exercício cadastrado neste plano.");
+        } else {
+            for (int i = 0; i < exercicios.size(); i++) {
+                System.out.println((i + 1) + ". " + exercicios.get(i));
+            }
+        }
+        System.out.println("---------------------------------");
+    }
 }
